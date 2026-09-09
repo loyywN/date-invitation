@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>一份小小的约会邀请 💕</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%;
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #ffdde1 0%, #ee9ca7 100%);
+    overflow-x: hidden;
+  }
+ date-invitation.html .phone {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .page {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1 0 auto;
+    padding: 32px 24px;
+    text-align: center;
+    animation: fadein .5s ease;
+  }
+  .page.active { display: flex; }
+  @keyframes fadein {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.12); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.08); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+  }
+  .big-emoji {
+    font-size: 88px;
+    line-height: 1.2;
+    animation: heartbeat 1.6s ease-in-out infinite;
+  }
+  .title {
+    font-size: 26px;
+    color: #d6336c;
+    margin: 18px 0 10px;
+    font-weight: 700;
+  }
+  .subtitle {
+    font-size: 15px;
+    color: #8c5a6b;
+    line-height: 1.7;
+    margin-bottom: 28px;
+    max-width: 320px;
+  }
+  .btn-accept {
+    background: linear-gradient(135deg, #ff7eb3, #ff5a8a);
+    color: #fff;
+    border: none;
+    padding: 14px 44px;
+    font-size: 18px;
+    border-radius: 999px;
+    box-shadow: 0 8px 20px rgba(255,90,138,.35);
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform .2s;
+  }
+  .btn-accept:active { transform: scale(.94); }
+  .btn-reject {
+    position: absolute;
+    background: #fff;
+    color: #9b6b7a;
+    border: 2px solid #f3c6cf;
+    padding: 10px 28px;
+    font-size: 15px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all .25s ease;
+  }
+  .btn-next {
+    background: linear-gradient(135deg, #ff7eb3, #ff5a8a);
+    color: #fff;
+    border: none;
+    padding: 14px 44px;
+    font-size: 17px;
+    border-radius: 999px;
+    box-shadow: 0 8px 20px rgba(255,90,138,.35);
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 24px;
+    transition: transform .2s;
+  }
+  .btn-next:active { transform: scale(.94); }
+  .btn-next:disabled {
+    background: #e0c4cd;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  select {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    border: 2px solid #f3c6cf;
+    border-radius: 14px;
+    background: #fff;
+    color: #6b3a4a;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><path fill='%23d6336c' d='M8 11L3 6h10z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    margin-bottom: 14px;
+  }
+  .field-label {
+    align-self: flex-start;
+    font-size: 14px;
+    color: #8c5a6b;
+    margin-bottom: 8px;
+    margin-left: 4px;
+  }
+  .food-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    width: 100%;
+    max-width: 360px;
+    margin-top: 8px;
+  }
+  .food-card {
+    background: #fff;
+    border: 2px solid #fce3e8;
+    border-radius: 18px;
+    padding: 16px 8px 12px;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .food-card:active { transform: scale(.95); }
+  .food-card.selected {
+    border-color: #ff5a8a;
+    background: linear-gradient(135deg, #fff0f4, #ffe0ea);
+    box-shadow: 0 6px 16px rgba(255,90,138,.3);
+    transform: scale(1.04);
+  }
+  .food-emoji {
+    font-size: 42px;
+    animation: float 2.4s ease-in-out infinite;
+  }
+  .food-name {
+    font-size: 13px;
+    color: #6b3a4a;
+    margin-top: 8px;
+  }
+  .summary {
+    background: rgba(255,255,255,.85);
+    border-radius: 20px;
+    padding: 24px 22px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 10px 30px rgba(214,51,108,.12);
+  }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px dashed #f3c6cf;
+    font-size: 16px;
+  }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-label { color: #9b6b7a; }
+  .summary-value { color: #d6336c; font-weight: 600; }
+  .card-final {
+    background: linear-gradient(135deg, #fff 0%, #fff5f8 100%);
+    border-radius: 28px;
+    padding: 36px 26px 30px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 18px 40px rgba(214,51,108,.2);
+    border: 3px solid #ffd6e0;
+    position: relative;
+  }
+  .card-final::before {
+    content: "💌";
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 44px;
+    animation: wiggle 2s ease-in-out infinite;
+  }
+  .progress-dots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    padding: 16px 0;
+  }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #f3c6cf;
+    transition: all .3s;
+  }
+  .dot.active { background: #ff5a8a; width: 22px; border-radius: 999px; }
+  .tip {
+    font-size: 12px;
+    color: #b88a99;
+    margin-top: 18px;
+  }
+  .note {
+    font-size: 14px;
+    color: #8c5a6b;
+    line-height: 1.7;
+    margin: 18px 0 6px;
+  }
+  .sign {
+    margin-top: 18px;
+    font-size: 13px;
+    color: #b88a99;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- 第一页：是否愿意约会 -->
+  <section class="page active" id="p1">
+    <div class="big-emoji">🐰</div>
+    <h1 class="title">嗨，有个小问题想问你</h1>
+    <p class="subtitle">这件事我在心里藏了好久啦……现在，终于鼓起勇气想问你：</p>
+    <p style="font-size:22px;color:#d6336c;font-weight:700;margin-bottom:36px;">愿意和我约个会吗？💕</p>
+    <button class="btn-accept" onclick="go(2)">我愿意 🥰</button>
+    <button class="btn-reject" id="rejectBtn" onclick="dodge(this)">不要 😝</button>
+    <p class="tip">（小提示：那个按钮好像不太想被点到哦）</p>
+  </section>
+
+  <!-- 第二页：选择时间 -->
+  <section class="page" id="p2">
+    <div class="big-emoji">📅</div>
+    <h1 class="title">什么时候有空呀？</h1>
+    <p class="subtitle">挑一个你方便的日子和时间，我会把时间留出来等你～</p>
+    <div style="width:100%;max-width:320px;">
+      <div class="field-label">选个日子</div>
+      <select id="dateSel" onchange="updateNext()"></select>
+      <div class="field-label">选个时间</div>
+      <select id="timeSel" onchange="updateNext()">
+        <option value="">时间……</option>
+        <option value="11:00">早上 11:00</option>
+        <option value="12:00">中午 12:00</option>
+        <option value="14:00">下午 14:00</option>
+        <option value="18:00">傍晚 18:00</option>
+        <option value="19:00">晚上 19:00</option>
+        <option value="20:00">夜里 20:00</option>
+      </select>
+    </div>
+    <button class="btn-next" id="next2" onclick="go(3)" disabled>下一步 ➜</button>
+  </section>
+
+  <!-- 第三页：选择食物 -->
+  <section class="page" id="p3">
+    <div class="big-emoji">🍽️</div>
+    <h1 class="title">想吃点什么呢？</h1>
+    <p class="subtitle">这些都是我悄悄打听过的，看看哪个最让你心动～</p>
+    <div class="food-grid" id="foodGrid"></div>
+    <button class="btn-next" id="next3" onclick="go(4)" disabled>下一步 ➜</button>
+  </section>
+
+  <!-- 第四页：确认汇总 -->
+  <section class="page" id="p4">
+    <div class="big-emoji">✨</div>
+    <h1 class="title">帮你整理好啦</h1>
+    <p class="subtitle">确认一下信息，没问题就可以定下来咯～</p>
+    <div class="summary">
+      <div class="summary-row">
+        <span class="summary-label">📅 日期</span>
+        <span class="summary-value" id="sumDate">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">⏰ 时间</span>
+        <span class="summary-value" id="sumTime">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">🍽️ 菜品</span>
+        <span class="summary-value" id="sumFood">—</span>
+      </div>
+    </div>
+    <button class="btn-next" onclick="go(5)">确认，就这样定啦 💖</button>
+  </section>
+
+  <!-- 第五页：最终卡片 -->
+  <section class="page" id="p5">
+    <div class="card-final">
+      <h1 class="title" style="margin-top:6px;">好开心你没有拒绝 🥹</h1>
+      <p class="note">那我们就这样约定啦：</p>
+      <div class="summary-row">
+        <span class="summary-label">📅 时间</span>
+        <span class="summary-value" id="finalDate">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">🍽️ 一起吃</span>
+        <span class="summary-value" id="finalFood">—</span>
+      </div>
+      <p class="note" style="margin-top:18px;">到时候我会准时来接你，<br>你只要打扮得美美的，等我出现就好 🚗💨</p>
+      <p class="sign">— 期待这一天的某人 💌</p>
+    </div>
+  </section>
+
+  <div class="progress-dots" id="dots"></div>
+</div>
+
+<script>
+  var foods = [
+    {e:"🍣", n:"寿司"}, {e:"🍕", n:"披萨"}, {e:"🍔", n:"汉堡"},
+    {e:"🍜", n:"拉面"}, {e:" hot", n:"火锅"}, {e:"🍱", n:"便当"},
+    {e:"🥩", n:"烤肉"}, {e:"🍰", n:"甜品"}, {e:"🍤", n:"海鲜"}
+  ];
+  // 修正 emoji
+  foods[4] = {e:"🍲", n:"火锅"};
+  foods[1] = {e:"🍕", n:"披萨"};
+  foods[2] = {e:"🍔", n:"汉堡"};
+  foods[3] = {e:"🍜", n:"拉面"};
+  foods[5] = {e:"🍱", n:"便当"};
+  foods[6] = {e:"🥩", n:"烤肉"};
+  foods[7] = {e:"🍰", n:"甜品"};
+  foods[8] = {e:"🍤", n:"海鲜"};
+  foods[0] = {e:"🍣", n:"寿司"};
+
+  var selectedFood = null;
+  var step = 1;
+  var totalSteps = 5;
+
+  // 初始化日期选项：未来 10 天
+  (function(){
+    var sel = document.getElementById('dateSel');
+    var first = document.createElement('option');
+    first.value = ''; first.textContent = '日子……';
+    sel.appendChild(first);
+    var now = new Date();
+    var weekdays = ['周日','周一','周二','周三','周四','周五','周六'];
+    for (var i=1; i<=10; i++){
+      var d = new Date(now.getTime() + i*86400000);
+      var mm = (d.getMonth()+1 < 10 ? '0':'') + (d.getMonth()+1);
+      var dd = (d.getDate() < 10 ? '0':'') + d.getDate();
+      var label = mm + '月' + dd + '日 ' + weekdays[d.getDay()];
+      sel.appendChild(new Option(label, label));
+    }
+  })();
+
+  // 初始化食物网格
+  (function(){
+    var grid = document.getElementById('foodGrid');
+    foods.forEach(function(f, i){
+      var div = document.createElement('div');
+      div.className = 'food-card';
+      div.dataset.idx = i;
+      div.innerHTML = '<div class="food-emoji">'+f.e+'</div><div class="food-name">'+f.n+'</div>';
+      div.onclick = function(){
+        document.querySelectorAll('.food-card').forEach(function(c){ c.classList.remove('selected'); });
+        div.classList.add('selected');
+        selectedFood = f;
+        document.getElementById('next3').disabled = false;
+      };
+      grid.appendChild(div);
+    });
+  })();
+
+  // 进度点
+  (function(){
+    var dots = document.getElementById('dots');
+    for (var i=1; i<=totalSteps; i++){
+      var d = document.createElement('div');
+      d.className = 'dot' + (i===1 ? ' active' : '');
+      dots.appendChild(d);
+    }
+  })();
+
+  // 拒绝按钮躲避：每次点击靠近"我愿意"按钮一点，并弹出俏皮话
+  var dodgeCount = 0;
+  var dodgeWords = [
+    '哎？再想想嘛~',
+    '别呀，人家会伤心的 🥺',
+    '这个按钮今天罢工啦',
+    '它跑掉了，试试旁边那个？',
+    '真的不要吗？再考虑下嘛 💔',
+    '好啦好啦，点愿意试试看嘛'
+  ];
+  function dodge(btn){
+    dodgeCount++;
+    // 随机移动到一个新位置（在屏幕范围内）
+    var maxX = window.innerWidth - 120;
+    var maxY = window.innerHeight - 80;
+    var newX = Math.max(10, Math.random() * maxX);
+    var newY = Math.max(window.innerHeight*0.35, Math.random() * maxY);
+    btn.style.left = newX + 'px';
+    btn.style.top = newY + 'px';
+    var msg = dodgeWords[Math.min(dodgeCount-1, dodgeWords.length-1)];
+    // 简单的提示：用按钮文字变化代替 alert
+    btn.textContent = msg;
+    // 自动恢复文字
+    clearTimeout(btn._t);
+    btn._t = setTimeout(function(){ btn.textContent = '不要 😝'; }, 1500);
+  }
+
+  function updateNext(){
+    var d = document.getElementById('dateSel').value;
+    var t = document.getElementById('timeSel').value;
+    document.getElementById('next2').disabled = !(d && t);
+  }
+
+  function go(n){
+    step = n;
+    // 切换页面
+    var pages = document.querySelectorAll('.page');
+    pages.forEach(function(p){ p.classList.remove('active'); });
+    document.getElementById('p'+n).classList.add('active');
+    // 更新进度点
+    document.querySelectorAll('.dot').forEach(function(d, i){
+      d.classList.toggle('active', (i+1)===n);
+    });
+    // 跳到第 4 页时填充汇总
+    if (n === 4){
+      document.getElementById('sumDate').textContent = document.getElementById('dateSel').value;
+      document.getElementById('sumTime').textContent = document.getElementById('timeSel').value;
+      document.getElementById('sumFood').textContent = selectedFood ? (selectedFood.e + ' ' + selectedFood.n) : '—';
+    }
+    // 跳到第 5 页时填充最终卡片
+    if (n === 5){
+      var dateStr = document.getElementById('dateSel').value;
+      var timeStr = document.getElementById('timeSel').value;
+      document.getElementById('finalDate').textContent = dateStr + ' ' + timeStr;
+      document.getElementById('finalFood').textContent = selectedFood ? (selectedFood.e + ' ' + selectedFood.n) : '—';
+    }
+    window.scrollTo(0, 0);
+  }
+</script>
+</body>
+</html>
